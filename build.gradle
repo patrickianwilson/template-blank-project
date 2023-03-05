@@ -1,14 +1,30 @@
+ext {
+    moduleName = "template-blank-project" //change me!!
+}
+project.version = 'dev.1'
+project.group = "com.github.patrickianwilson"
+
 buildscript {
     repositories {
         maven {
-            url "http://repo.wilsonsinquest.com/nexus/content/repositories/releases/"
+            name = 'mavenInternal'
+            url "https://maven.pkg.jetbrains.space/inquest/p/buildtools/gradle-plugins-internal"
+            credentials {
+                username = spaceUsername
+                password = spacePassword
+            }
         }
         mavenCentral()
+        mavenLocal()
     }
     dependencies {
-        classpath "com.github.patrickianwilson:ProjectConventionsGradlePlugin:1.0.+"
+        classpath "com.inquestdevops:WarblerBuildGradlePlugin:1.0.+"
     }
 }
+//project.apply plugin: "maven-publish"
+project.tasks.maybeCreate("release")
+
+//apply plugin: "project.go"
 
 project.version = 'dev.1'
 if (System.getenv("BUILD_NUMBER") != null) {
@@ -17,5 +33,3 @@ if (System.getenv("BUILD_NUMBER") != null) {
     project.version = "${majorVersion}.${buildSetVersion}.${System.getenv("BUILD_NUMBER")}"
 }
 project.group = "com.github.patrickianwilson"
-
-//apply plugin: "project.go"
