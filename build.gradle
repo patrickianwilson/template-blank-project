@@ -1,5 +1,7 @@
 ext {
     moduleName = "template-blank-project" //change me!!
+    configDirs=["configuration"]
+    compressConfigArtifact=true
 }
 project.version = 'dev.1'
 project.group = "com.github.patrickianwilson"
@@ -21,15 +23,31 @@ buildscript {
         classpath "com.inquestdevops:WarblerBuildGradlePlugin:1.0.+"
     }
 }
-//project.apply plugin: "maven-publish"
-project.tasks.maybeCreate("release")
+project.apply plugin: "maven-publish"
+project.apply plugin: "project.files"
 
-//apply plugin: "project.go"
-
-project.version = 'dev.1'
-if (System.getenv("BUILD_NUMBER") != null) {
-    def majorVersion = "1.0" //eventually override with a lookup
-    def buildSetVersion = "0" //eventually look this up too.
-    project.version = "${majorVersion}.${buildSetVersion}.${System.getenv("BUILD_NUMBER")}"
-}
 project.group = "com.github.patrickianwilson"
+
+publishing {
+    publications {
+        Library(MavenPublication) {
+            artifactId "${project.ext.moduleName}"
+            artifact packageSrcLibconfiguration
+        }
+    }
+    repositories {
+        maven {
+            name = 'mavenInternal'
+            url "https://maven.pkg.jetbrains.space/inquest/p/buildtools/build-tools"
+            credentials {
+                username = spaceUsername
+                password = spacePassword
+            }
+        }
+        mavenLocal()
+    }
+}
+
+if (project.version == "dev.1") {
+    project.tasks.release.dependsOn("publishToMavenLocal")
+}
